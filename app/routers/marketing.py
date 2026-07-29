@@ -271,14 +271,21 @@ def create_ad(
     payload: AdCreate,
     db: Session = Depends(get_db),
 ):
-    """Create an ad for a pageant."""
+    """Create an ad for a pageant's program book."""
     pageant = db.query(Pageant).filter(Pageant.id == pageant_id).first()
     if not pageant:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Pageant not found",
         )
-    ad = Ad(pageant_id=pageant_id, **payload.model_dump())
+    # Auto-resolve the program book for this pageant
+    book = db.query(ProgramBook).filter(ProgramBook.pageant_id == pageant_id).first()
+    if not book:
+        # Create a default program book if none exists
+        book = ProgramBook(pageant_id=pageant_id)
+        db.add(book)
+        db.flush()
+    ad = Ad(pageant_id=pageant_id, program_book_id=book.id, **payload.model_dump())
     db.add(ad)
     db.commit()
     db.refresh(ad)
