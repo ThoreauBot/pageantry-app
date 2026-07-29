@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pageantry App</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<nav id="nav-bar">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand" onclick="showPage('dashboard')">PDR</a>
+    <div class="nav-links" id="nav-links">
+      <a href="#" onclick="showPage('dashboard')">Dashboard</a>
+      <a href="#" onclick="showPage('pageants')">Pageants</a>
+      <a href="#" onclick="showPage('contestants')">Contestants</a>
+      <a href="#" onclick="showPage('scoring')">Scoring</a>
+      <a href="#" onclick="showPage('venues')">Venues</a>
+      <a href="#" onclick="showPage('sponsors')">Sponsors</a>
+      <a href="#" onclick="showPage('marketing')">Marketing</a>
+      <a href="#" onclick="showPage('titleholders')">Titleholders</a>
+      <a href="#" onclick="showPage('finances')">Finances</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div id="page-dashboard" class="page active">
+    <h1>Dashboard</h1>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><h3>Pageants</h3><span class="stat-value" id="stat-pageants">0</span></div>
+      <div class="stat-card"><h3>Contestants</h3><span class="stat-value" id="stat-contestants">0</span></div>
+      <div class="stat-card"><h3>Checked In</h3><span class="stat-value" id="stat-checked-in">0</span></div>
+      <div class="stat-card"><h3>Sponsors</h3><span class="stat-value" id="stat-sponsors">0</span></div>
+      <div class="stat-card"><h3>Revenue</h3><span class="stat-value" id="stat-revenue">$0</span></div>
+      <div class="stat-card"><h3>Expenses</h3><span class="stat-value" id="stat-expenses">$0</span></div>
+    </div>
+    <div class="card">
+      <h2>Quick Actions</h2>
+      <div class="quick-actions">
+        <button onclick="showPage('pageants')" class="btn">Manage Pageants</button>
+        <button onclick="showPage('contestants')" class="btn">View Contestants</button>
+        <button onclick="showPage('scoring')" class="btn">Scoring</button>
+        <button onclick="showPage('finances')" class="btn">Finances</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-pageants" class="page">
+    <h1>Pageants</h1>
+    <button onclick="showPageantForm()" class="btn btn-primary">+ New Pageant</button>
+    <div id="pageant-form" class="card" style="display:none">
+      <h3>Create Pageant</h3>
+      <div class="form-grid">
+        <input id="p-name" placeholder="Pageant Name" required>
+        <input id="p-slug" placeholder="slug (e.g. spring-fair-2026)" required>
+        <select id="p-type">
+          <option value="representative">Representative (year-long reign)</option>
+          <option value="hobby">Hobby (one-day)</option>
+        </select>
+        <textarea id="p-mission" placeholder="Mission statement..." rows="3"></textarea>
+      </div>
+      <button onclick="createPageant()" class="btn btn-primary">Create</button>
+      <button onclick="hidePageantForm()" class="btn">Cancel</button>
+    </div>
+    <div id="pageant-list"></div>
+  </div>
+
+  <div id="page-contestants" class="page">
+    <h1>Contestants</h1>
+    <div class="toolbar">
+      <select id="c-pageant-filter" onchange="loadContestants()"><option value="">Select pageant</option></select>
+      <button onclick="showContestantForm()" class="btn btn-primary">+ Register</button>
+    </div>
+    <div id="contestant-form" class="card" style="display:none">
+      <h3>Register Contestant</h3>
+      <div class="form-grid">
+        <input id="c-first" placeholder="First Name" required>
+        <input id="c-last" placeholder="Last Name" required>
+        <input id="c-age" type="number" placeholder="Age">
+        <input id="c-email" type="email" placeholder="Email">
+        <input id="c-phone" placeholder="Phone">
+        <select id="c-division"><option value="">Select division</option></select>
+      </div>
+      <button onclick="registerContestant()" class="btn btn-primary">Register</button>
+      <button onclick="hideContestantForm()" class="btn">Cancel</button>
+    </div>
+    <div id="contestant-list"></div>
+  </div>
+
+  <div id="page-scoring" class="page">
+    <h1>Scoring</h1>
+    <div class="toolbar">
+      <select id="s-pageant-filter" onchange="loadScoringPanels()"><option value="">Select pageant</option></select>
+      <button onclick="showPanelForm()" class="btn btn-primary">+ New Judge Panel</button>
+    </div>
+    <div id="panel-form" class="card" style="display:none">
+      <h3>Create Judge Panel</h3>
+      <input id="panel-name" placeholder="Panel Name (e.g. Main Panel)" class="full-width">
+      <div id="judge-inputs">
+        <div class="judge-row"><input placeholder="Judge First Name" class="jf"><input placeholder="Last Name" class="jl"><input placeholder="Email" class="je"></div>
+      </div>
+      <button onclick="addJudgeRow()" class="btn btn-sm">+ Add Judge</button>
+      <button onclick="createPanel()" class="btn btn-primary">Create Panel</button>
+      <button onclick="hidePanelForm()" class="btn">Cancel</button>
+    </div>
+    <div id="panel-list"></div>
+    <div id="score-entry" class="card" style="display:none">
+      <h3>Enter Scores</h3>
+      <div class="form-grid">
+        <select id="score-category"><option value="">Select category</option></select>
+        <select id="score-contestant"><option value="">Select contestant</option></select>
+        <select id="score-judge"><option value="">Select judge</option></select>
+        <input id="score-value" type="number" step="0.5" min="0" max="10" placeholder="Score (0-10)">
+        <textarea id="score-comment" placeholder="Optional comment" rows="2"></textarea>
+      </div>
+      <button onclick="submitScore()" class="btn btn-primary">Submit Score</button>
+      <button onclick="document.getElementById('score-entry').style.display='none'" class="btn">Cancel</button>
+    </div>
+  </div>
+
+  <div id="page-venues" class="page">
+    <h1>Venues</h1>
+    <button onclick="showVenueForm()" class="btn btn-primary">+ Add Venue</button>
+    <div id="venue-form" class="card" style="display:none">
+      <h3>Add Venue</h3>
+      <div class="form-grid">
+        <input id="v-name" placeholder="Venue Name" required>
+        <input id="v-address" placeholder="Address">
+        <input id="v-capacity" type="number" placeholder="Capacity">
+        <input id="v-contact" placeholder="Contact Name">
+        <input id="v-phone" placeholder="Contact Phone">
+        <input id="v-email" type="email" placeholder="Contact Email">
+      </div>
+      <button onclick="createVenue()" class="btn btn-primary">Save</button>
+      <button onclick="hideVenueForm()" class="btn">Cancel</button>
+    </div>
+    <div id="venue-list"></div>
+  </div>
+
+  <div id="page-sponsors" class="page">
+    <h1>Sponsors & Donors</h1>
+    <div class="toolbar">
+      <select id="sp-pageant-filter" onchange="loadSponsors()"><option value="">Select pageant</option></select>
+      <button onclick="showSponsorForm()" class="btn btn-primary">+ Add Sponsor</button>
+    </div>
+    <div id="sponsor-form" class="card" style="display:none">
+      <h3>Add Sponsor</h3>
+      <div class="form-grid">
+        <input id="sp-business" placeholder="Business Name" required>
+        <input id="sp-contact" placeholder="Contact Name">
+        <input id="sp-email" type="email" placeholder="Email">
+        <input id="sp-phone" placeholder="Phone">
+        <input id="sp-website" placeholder="Website">
+      </div>
+      <button onclick="createSponsor()" class="btn btn-primary">Save</button>
+      <button onclick="hideSponsorForm()" class="btn">Cancel</button>
+    </div>
+    <div class="card">
+      <h3>Donations</h3>
+      <button onclick="showDonationForm()" class="btn btn-sm">+ Record Donation</button>
+      <div id="donation-form" style="display:none" class="mt-1">
+        <div class="form-grid">
+          <input id="d-name" placeholder="Donor Name">
+          <input id="d-amount" type="number" placeholder="Amount">
+          <input id="d-kind" placeholder="In-kind description">
+        </div>
+        <button onclick="recordDonation()" class="btn btn-primary">Record</button>
+      </div>
+    </div>
+    <div id="sponsor-list"></div>
+  </div>
+
+  <div id="page-marketing" class="page">
+    <h1>Marketing</h1>
+    <div class="toolbar">
+      <select id="m-pageant-filter" onchange="loadCampaigns()"><option value="">Select pageant</option></select>
+      <button onclick="showCampaignForm()" class="btn btn-primary">+ New Campaign</button>
+    </div>
+    <div id="campaign-form" class="card" style="display:none">
+      <h3>Create Campaign</h3>
+      <div class="form-grid">
+        <input id="camp-name" placeholder="Campaign Name" required>
+        <select id="camp-type">
+          <option value="email">Email</option>
+          <option value="social">Social Media</option>
+          <option value="print">Print</option>
+          <option value="event">Event</option>
+        </select>
+        <input id="camp-start" type="date" placeholder="Start Date">
+        <input id="camp-budget" type="number" placeholder="Budget">
+      </div>
+      <button onclick="createCampaign()" class="btn btn-primary">Create</button>
+    </div>
+    <div id="campaign-list"></div>
+    <div class="card mt-2">
+      <h3>Program Book & Ads</h3>
+      <div class="form-grid">
+        <select id="pb-pageant-filter"><option value="">Select pageant</option></select>
+        <button onclick="createProgramBook()" class="btn btn-sm">Init Program Book</button>
+      </div>
+      <div id="program-book-info"></div>
+      <div id="ad-list"></div>
+    </div>
+  </div>
+
+  <div id="page-titleholders" class="page">
+    <h1>Titleholders</h1>
+    <div class="toolbar">
+      <select id="t-pageant-filter" onchange="loadTitleholders()"><option value="">Select pageant</option></select>
+    </div>
+    <div id="titleholder-list"></div>
+  </div>
+
+  <div id="page-finances" class="page">
+    <h1>Finances</h1>
+    <div class="toolbar">
+      <select id="f-pageant-filter" onchange="loadBudget()"><option value="">Select pageant</option></select>
+      <button onclick="showBudgetForm()" class="btn btn-primary">+ Add Budget Item</button>
+    </div>
+    <div id="budget-summary" class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="stat-card"><h3>Total Revenue</h3><span class="stat-value" id="fin-revenue">$0</span></div>
+      <div class="stat-card"><h3>Total Expenses</h3><span class="stat-value" id="fin-expenses">$0</span></div>
+      <div class="stat-card"><h3>Net</h3><span class="stat-value" id="fin-net">$0</span></div>
+    </div>
+    <div id="budget-form" class="card" style="display:none">
+      <h3>Add Budget Item</h3>
+      <div class="form-grid">
+        <input id="b-desc" placeholder="Description" required>
+        <select id="b-cat">
+          <option value="venue">Venue</option>
+          <option value="staffing">Staffing</option>
+          <option value="awards">Awards</option>
+          <option value="marketing">Marketing</option>
+          <option value="printing">Printing</option>
+          <option value="miscellaneous">Miscellaneous</option>
+        </select>
+        <input id="b-estimated" type="number" placeholder="Estimated Cost">
+        <input id="b-vendor" placeholder="Vendor Name">
+      </div>
+      <button onclick="createBudgetItem()" class="btn btn-primary">Add</button>
+    </div>
+    <div id="budget-list"></div>
+  </div>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
